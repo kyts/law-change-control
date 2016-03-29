@@ -2,14 +2,12 @@
 Internal NAU System project for law changes control.
 
 ## Uses
-### in WEB View 
-laws changes visual control 
+### in WEB View (laws changes visual control) 
 * [Bootstrap 3](http://getbootstrap.com/)
 * [jQuery](https://jquery.com/)
 * [knockout.js](http://knockoutjs.com/)
 
-### in admin part 
-loading laws attributes from XML in DB
+### in ADMIN part (loading laws attributes from XML in DB)
 * [SQLite](https://www.sqlite.org/)
 * [PHP](http://php.net/)
 
