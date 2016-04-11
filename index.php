@@ -538,7 +538,7 @@ $(document).ready(function() {
                     	$("#loading_params").hide();
                 	},
                		dataType: "json",
-                	url: "params.php",
+                	url: "paramsget.php",
                 	type: "GET",
 
                 	success: function (par) {
