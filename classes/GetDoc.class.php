@@ -90,9 +90,9 @@ class GetDoc
 		}
 
 		$doc = array('document' => $docs_attributes_arr,
-						'redactions' => $redactions_arr,
-						'history' => $history_arr,
-						'hrefs' => $hrefs_arr);
+				'redactions' => $redactions_arr,
+				'history' => $history_arr,
+				'hrefs' => $hrefs_arr);
 		return $doc;
 	}
 
@@ -139,7 +139,7 @@ class GetDoc
 		// Checking changes from table 'hand_zminy' in table 'redactions'.
 		if ($params['in_redactions']) {
 			$in_redactions_query = "
-			LEFT OUTER JOIN
+		LEFT OUTER JOIN
           	 	(
                	SELECT hz.code AS hz_code,
                       hz.zcode AS hz_zcode,
@@ -151,7 +151,7 @@ class GetDoc
                                          r_zcode = hz_zcode
            		)
                 AS tt 
-            ON hand_zminy.code = tt.r_code
+                ON hand_zminy.code = tt.r_code
             ";
             $in_red_q = "hz_code IS NULL";
         }
@@ -159,7 +159,7 @@ class GetDoc
         // Checking changes from table 'hand_zminy' in table 'history'
 		if ($params['in_history']) {
 			$in_history_query = "
-			LEFT OUTER JOIN
+		LEFT OUTER JOIN
            		(
                 SELECT hi.code AS hi_code,
                       hi.his_code AS hi_zcode,
@@ -179,7 +179,7 @@ class GetDoc
         // Checking changes from table 'hand_zminy' in table 'hrefs'
 		if ($params['in_hrefs']) {
 			$in_hrefs_query = "
-			LEFT OUTER JOIN
+		LEFT OUTER JOIN
            		(
                 SELECT hr.code AS hr_code,
                   hr.hrefs_code AS hr_zcode,
@@ -229,15 +229,15 @@ class GetDoc
 		// Основной запрос к базе
 		// Main query 
 		$info = $this->db_conn->query("
-			SELECT 
-				code,
+		SELECT 
+			code,
            		zcode,
           		mark,
          		checked,
            		updtdate
       		FROM hand_zminy
            	{$str_join}
-            {$str}
+            	{$str}
 			");	
 
 		if($info){
