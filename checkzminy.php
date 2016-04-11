@@ -1,7 +1,7 @@
 <?php
-function __autoload( $className ) {
-  $className = str_replace( "..", "", $className );
-  require_once( "classes/$className.class.php" );
+function __autoload($className) {
+  $className = str_replace("..", "", $className);
+  require_once("classes/$className.class.php");
 }
 require_once("classes/functions.php");
 
@@ -10,13 +10,13 @@ $db = new MyDB('zak.sqlite');
 if(!$db){
     echo $db->lastErrorMsg();
 } else {
-    $hz = new GetDoc($db);
-    $maxvers = $hz->getProtocolVersMax();
-	$zminy = $hz->checkZminy();
-	$params = $hz->getParameters();
-	$docs = array();
+// Checking Zminy 
 	$current_date = date('Y-m-d', time());
-
+	$hz = new GetDoc($db);
+	$maxvers = $hz->getProtocolVersMax();
+	$params = $hz->getParameters();
+	$zminy = $hz->checkZminy();
+	$docs = array();
 	foreach ($zminy as $key => $value) {
 		$ignore_days = 5;
 		if ($zminy[$key]['mark']==="z") {
