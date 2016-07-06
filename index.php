@@ -213,6 +213,13 @@ if ($register_usr) {
     <div class="panel panel-default">
     <div class="panel-body">
     <div class="row">
+    <!-- ko ifnot: document.length -->
+    <div class="col-sm-4" style="background-color:white;">
+	<div class="well">
+    		<h4 style="text-align: center;">Документ не знайдено!</h4>
+   	</div>
+    </div>
+    <!-- /ko -->
     <div class="col-sm-4" style="background-color:white;" data-bind="foreach: document">
     <div class="well">
         <h4 style="text-align: center;">Документ</h4>
