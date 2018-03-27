@@ -1,10 +1,10 @@
 <?php
-/**
-* Setting parameters
-*/
-function __autoload( $className ) {
-  $className = str_replace( "..", "", $className );
-  require_once( "classes/$className.class.php" );
+////////////////////////////////////////////////////////////////////////////
+// Set parameters
+////////////////////////////////////////////////////////////////////////////
+function __autoload($className) {
+  $className = str_replace("..", "", $className);
+  require_once("classes/$className.class.php");
 }
 
 $db = new MyDB('zak.sqlite');

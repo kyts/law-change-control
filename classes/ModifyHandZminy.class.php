@@ -1,6 +1,7 @@
 <?php
+
 /**
-*  Modify check-flag for Hand Zminy in DB
+* 
 */
 class ModifyHandZminy
 {
@@ -10,22 +11,23 @@ class ModifyHandZminy
 		$this->db_conn = $db;
 	}
 
-	public function setChecked($code) {
-		$stmt = $this->db_conn->exec("UPDATE hand_zminy SET checked='+' WHERE code='".$code."'");
+	public function setChecked($code, $zcode) {
+		$stmt = $this->db_conn->exec("UPDATE hand_zminy SET checked='+' WHERE code='".$code."' AND zcode='".$zcode."'");
 		return $stmt;
 	}
 
-	public function setUnChecked($code) {
-		$stmt = $this->db_conn->exec("UPDATE hand_zminy SET checked='-' WHERE code='".$code."'");
+	public function setUnChecked($code, $zcode) {
+		$stmt = $this->db_conn->exec("UPDATE hand_zminy SET checked='-' WHERE code='".$code."' AND zcode='".$zcode."'");
 		return $stmt;
 	}
 
-	public function toggleChecked($code) {
-		$chkd = $this->db_conn->querySingle("SELECT checked FROM hand_zminy WHERE code='".$code."'");
+	public function toggleChecked($code, $zcode) {
+		$code = trim($code);
+		$chkd = $this->db_conn->querySingle("SELECT checked FROM hand_zminy WHERE code='".$code."' AND zcode='".$zcode."'");
 		if ($chkd['checked'] === "+") {
-			$stmt = $this->setUnChecked($code);
+			$stmt = $this->setUnChecked($code, $zcode);
 		} else {
-			$stmt = $this->setChecked($code);			
+			$stmt = $this->setChecked($code, $zcode);
 		}
 		return $stmt;
 	}

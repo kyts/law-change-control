@@ -3,20 +3,20 @@ function __autoload($className) {
   $className = str_replace("..", "", $className);
   require_once("classes/$className.class.php");
 }
-require_once("classes/functions.php");
-
-// Open SQLite base
+////////////////////////////////////////////////////////////////////////////
+// Check changes in laws
+////////////////////////////////////////////////////////////////////////////
 $db = new MyDB('zak.sqlite');
 if(!$db){
     echo $db->lastErrorMsg();
 } else {
-// Checking Zminy 
-	$current_date = date('Y-m-d', time());
-	$hz = new GetDoc($db);
-	$maxvers = $hz->getProtocolVersMax();
-	$params = $hz->getParameters();
+    $hz = new GetDoc($db);
+    $maxvers = $hz->getProtocolVersMax();
 	$zminy = $hz->checkZminy();
+	$params = $hz->getParameters();
 	$docs = array();
+	$current_date = date('Y-m-d', time());
+
 	foreach ($zminy as $key => $value) {
 		$ignore_days = 5;
 		if ($zminy[$key]['mark']==="z") {
@@ -28,7 +28,7 @@ if(!$db){
 		$ignore_date = strtotime($current_date.' -'.$ignore_days.' days'); 
 		$zminy_date = strtotime($zminy[$key]['updtdate']);	
 		if ($zminy_date < $ignore_date) {
-			$docs[] = array_merge($hz->getDocAttrs($value['code']), array('hand_zminy' => array($zminy[$key])));
+			$docs[] = array_merge($hz->getDocAttrs($value['code']), array('hand_zminy' => $zminy[$key]));
 		}	
 	}
 	if (count($docs)>0) {

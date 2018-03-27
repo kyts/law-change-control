@@ -1,27 +1,31 @@
 <?php
-/**
-* Mark Zminy as checked 
-*/
-function __autoload( $className ) {
-  $className = str_replace( "..", "", $className );
-  require_once( "classes/$className.class.php" );
+////////////////////////////////////////////////////////////////////////////
+// Make doc as visualy controlled and checked
+////////////////////////////////////////////////////////////////////////////
+function __autoload($className) {
+  $className = str_replace("..", "", $className);
+  require_once("classes/$className.class.php");
 }
-require_once("classes/functions.php");
 
-$checked_doc = $_POST["code"];
+$code = $_POST["code"];
+$zcode = $_POST["zcode"];
  
-$db = new MyDB('zak.sqlite');
+if(!isset($code) && !isset($zcode)){
+	echo "FALSE";
+	exit(0);
+}
 
+$db = new MyDB('zak.sqlite');
 if(!$db){
     echo $db->lastErrorMsg();
 } else {
-    $hz = new ModifyHandZminy($db);
-    $modified = $hz->toggleChecked($checked_doc);
-    if ($modified) {
-	echo "OK";
-    } else {
-	echo "FALSE";
-    }
+   	$hz = new ModifyHandZminy($db);
+   	$modified = $hz->toggleChecked($code, $zcode);
+   	if ($modified) {
+		echo "OK";
+	} else {
+		echo "FALSE";
+	}
 }
 
 $db->close();
