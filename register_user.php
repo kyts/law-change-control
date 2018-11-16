@@ -1,7 +1,6 @@
 <?php
 ////////////////////////////////////////////////////////////////////////////
 // Register new user 
-// TO DO: (many errors)
 ////////////////////////////////////////////////////////////////////////////
 
 function __autoload($className) {
@@ -25,12 +24,12 @@ if(isset($_POST['submit']))
     # проверям логин 
    if(!preg_match("/^[a-zA-Z0-9]+$/",$_POST['login'])) 
     { 
-        $err[] = "Логин может состоять только из букв английского алфавита и цифр"; 
+        $err[] = "Логін може складатися тільки з букв англійського алфавіту і цифр"; 
     } 
      
     if(strlen($_POST['login']) < 3 or strlen($_POST['login']) > 30) 
     { 
-        $err[] = "Логин должен быть не меньше 3-х символов и не больше 30"; 
+        $err[] = "Логін повинен бути не менше 3-х символів і не більше 30"; 
     } 
      
     # проверяем, не сущестует ли пользователя с таким именем 
@@ -39,7 +38,7 @@ if(isset($_POST['submit']))
 
     if($in_table > 0) 
     { 
-        $err[] = "Пользователь с таким логином уже существует в базе данных"; 
+        $err[] = "Користувач з таким і'мям вже існує"; 
     } 
   
      
@@ -53,21 +52,25 @@ if(isset($_POST['submit']))
         $password = md5(md5(trim($_POST['password']))); 
          
 
-        $sm = $db->query("INSERT INTO users (users_login, users_password, users_hash) VALUES ('".$login."', '".$password."', '')"); 
-        print_r($sm);
+        $sm = $db->exec("INSERT INTO users (users_login, users_password, users_hash) VALUES ('".$login."', '".$password."', '')"); 
+
+        if($sm){
+          echo '<h2>Користувача '.$login.' зареєстровано.</h2>';
+        }
+        //print_r($sm);
         //header("Location: login.php"); exit(); 
     }
 } 
 ?>
 
   <form method="POST" action="">
-  Логин <input type="text" name="login" id="reg_inp" /><br />
+  Логін <input type="text" name="login" id="reg_inp" /><br />
   Пароль <input type="password" name="password" id="reg_inp" /><br />
   <input name="submit" type="submit" value="Зарегистрироваться"> 
   </form>
   <?php
-    if (isset($err)) {
-      print "<b>При регистрации произошли следующие ошибки:</b><br>"; 
+    if (!empty($err)) {
+      print "<b>Помилка:</b><br>"; 
       foreach($err AS $error) 
       { 
         print $error."<br>"; 

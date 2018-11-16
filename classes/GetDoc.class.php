@@ -1,6 +1,6 @@
 <?php
 /**
-* 
+* Обработка изменений
 */
 class GetDoc 
 {
@@ -76,7 +76,6 @@ class GetDoc
 
 				$docs_attributes_arr[] = $row;
 			}
-
 		}
 		if ( count($docs_attributes_arr)>0 )
 			$d = $docs_attributes_arr[0];
@@ -124,7 +123,7 @@ class GetDoc
 	}
 
 	// Проверка изменений
-	public function checkZminy() {
+	public function checkZminy($fil) {
 		// Вытягиваем параметры
 		$params = $this->getParameters();
 
@@ -190,7 +189,8 @@ class GetDoc
 		
         // Формирование строк запроса в зависимости от параметров
 		if ($params['in_redactions'] or $params['in_history'] or $params['in_hrefs']) {
-			$in_cheked = "checked IN ('', '-')";
+			//$in_cheked = "checked IN ('', '-', 'p', 'f')";
+			$in_cheked = "checked='".$fil."'";
 		}
 
 		$str_join ="";
@@ -230,13 +230,11 @@ class GetDoc
 			{$str_join}
 			{$str}
 			";
-		//var_dump($sql_string);
 		$info = $this->db_conn->query($sql_string);	
 
 		if($info){
 			$info_arr = array();
-			while($row = $info->fetchArray(SQLITE3_ASSOC) ){
-				
+			while($row = $info->fetchArray(SQLITE3_ASSOC) ){			
 				$dr = $this->getDocRecvizity($row['zcode']);
 				if( is_array($dr) && count($dr) > 0 )
 					$row['zcode'] = $dr;

@@ -1,4 +1,8 @@
 <?php
+function __autoload($className) {
+  $className = str_replace("..", "", $className);
+  require_once("classes/$className.class.php");
+}
 ////////////////////////////////////////////////////////////////////////////
 // Login process controll 
 ////////////////////////////////////////////////////////////////////////////
@@ -25,7 +29,7 @@ $error[2] = 'Тебе сюда нельзя';
   }
 
   # Подключаем конфиг
-  require_once("classes/classMyDB.php");
+  //require_once("classes/classMyDB.php");
 
   $db = new MyDB('zak.sqlite');
   if(!$db){

@@ -77,6 +77,8 @@ CREATE TABLE docs_attributes (
 
 	npa         VARCHAR,
 
+	publc       VARCHAR,
+
 	modify_date DATETIME DEFAULT (CURRENT_TIMESTAMP),
 
 	CONSTRAINT sqlite_autoindex_docs_attributes_3);

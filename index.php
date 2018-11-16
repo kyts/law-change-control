@@ -2,7 +2,6 @@
 ////////////////////////////////////////////////////////////////////////////
 // Main file for controll docs
 ////////////////////////////////////////////////////////////////////////////
-
 date_default_timezone_set('Europe/Kiev'); 
 function __autoload($className) {
   $className = str_replace("..", "", $className);
@@ -51,11 +50,10 @@ if(isset($_REQUEST['exit'])) {
 	}
 }
 
-$info = $db->query("SELECT MAX(vers) AS maxvers FROM docs_attributes");
-if($info){
-	$info_maxvers = $info->fetchArray(SQLITE3_ASSOC);
-	$maxvers = $info_maxvers['maxvers'];
-}
+$maxvers = $db->querySingle("SELECT MAX(vers) FROM docs_attributes");
+$maxdate = $db->querySingle("SELECT MAX(updtdate) FROM docs_attributes");
+$md = explode("-", $maxdate);
+$maxdate = $md[2].".".$md[1].".".$md[0];
 
 ?>
 
@@ -65,16 +63,21 @@ if($info){
 <head>
 	<meta charset="utf-8" />
 	<title>Контроль редакцій</title>
-	<link rel="stylesheet" href="css/bootstrap.css">
-	<link rel="stylesheet" href="css/zak.css">
+	<link rel="stylesheet" href="lib/css/bootstrap.css">
+	<link rel="stylesheet" href="lib/css/zak.css">
 
-	<script src="js/jquery-2.2.0.min.js"></script>
-	<script src="js/knockout-3.4.0.js"></script>
-	<script src="js/bootstrap.min.js"></script>
-	
+	<script src="lib/js/jquery-2.2.0.min.js"></script>
+	<script src="lib/js/knockout-3.4.0.js"></script>
+	<script src="lib/js/knockout-fast-foreach.min.js"></script>
+	<script src="lib/js/bootstrap.min.js"></script>
+
 
 </head>
-<body style="margin:40px;background-color:#ddd;">
+<body style="margin:40px; margin-top: 10px; background-color:#eee;">
+
+
+
+
 	<?php 
 	if ($register_usr) {print('
 <div class="modal bs-example-modal-sm" id="params" tabindex="-1" role="dialog" aria-labelledby="ModalLabel">
@@ -201,15 +204,47 @@ if($info){
 </div>
 <!-- Modal ends Here -->
 
+<h2 class="container text-center"><span class="glyphicon glyphicon-screenshot"></span>&nbsp;&nbsp;Контроль редакцій&nbsp;&nbsp;&nbsp;</h2>
+
+<div class="row">
+	<div class="col-md-12 text-center">
+		<b>Поновлення <span style="color: red; font-size: 20px;"><?php echo $maxvers; ?></span> від <?php echo $maxdate; ?></b>
+	</div>
+</div>
+<hr style="margin-bottom: 10px;">
+<div class="row">
+	<div class="col-md-9">
+
+		<form class="form-inline">
+			<div class="form-group">
+				<select class="form-control" data-bind=" options: availableFil, 
+							optionsText: 'text',
+							optionsValue: 'value',
+							value: selectedFil, 
+							style: {'border-color': $root.border_color}
+							"></select>
+			</div>
+			<div class="form-group">
+				<div class="input-group">
+					<input class="form-control" type="text" name="complteList" list="complteList" placeholder="Видавник... " data-bind='value: filter, valueUpdate: "input"'>
+					<datalist id="complteList" data-bind="fastForEach:filters">
+						<option data-bind="value: $data" />
+					</datalist>
+					<div class="input-group-addon btn" data-bind="click: clickFilter">X</div>
+				</div>
+			</div>
+			<button class="btn btn-default" data-bind="click: loadDocsBtnClick">Завантажити&nbsp;</button>
+
+			<div class="form-group">
+				<span style="margin-left: 20px; font-size: 20px">Знайдено&nbsp;<b><span data-bind="text: doctmpcount" style="color: blue;"></span></b></span>
+			</div>
+
+		</form>
+	</div>
 
 
-<div class="row" style="display: flex; align-items: center;">
-	<div class="col-md-3">
-		<h4><span class="glyphicon glyphicon-tasks"></span>&nbsp;&nbsp;Контроль редакцій&nbsp;&nbsp;&nbsp;<span class="label label-primary"><span class="glyphicon glyphicon-refresh"></span>&nbsp;&nbsp;<?php print($maxvers); ?></span></h4>
-	</div>
-	<div class="col-md-6">
-		<h4>Знайдено <select data-bind="options: filters, value: filter"></select>&nbsp;<span data-bind="text: doctmpcount"></span> з <span id="count_docs"></span></h4>
-	</div>
+
+
 <?php 
 	if ($register_usr) {
 		echo ("
@@ -230,8 +265,7 @@ if($info){
 			');}
 ?>       
 </div>
-
-		<form id="formx" data-bind="submit: $root.toggleChecked">
+<hr style="margin-top: 10px; margin-bottom: 10px;">
 
 			<div id="nodocs">
 				<div class="row">
@@ -248,7 +282,7 @@ if($info){
 				<!-- Template for document -->
 				<div  data-bind="template: { foreach: filteredDocs }">
 
-					<div class="panel panel-default">
+					<div class="panel panel-default" style="border-left-width: .25rem;" data-bind="attr: { id: 'doc'+hand_zminy.code+zcode(hand_zminy.zcode) }, style: { 'border-left-color': $root.border_color }">
 						<div class="panel-body">
 
 							<div class="row">
@@ -260,8 +294,8 @@ if($info){
 											<div data-bind="if: hand_zminy">
 												<p>Код: <b data-bind="text: hand_zminy.code"></b></p>
 											
-												<a class="btn btn-info btn-xs" href="#" data-bind="attr: {href: 'iplex://ukr/doc?code='+hand_zminy.code}">iplex</a>
-												<a target="_blank" class="btn btn-info btn-xs" href="#" data-bind="attr: {href: 'http://zakon2.rada.gov.ua/laws/find/a?textl=1&bool=and&text='+hand_zminy.code}">рада</a>
+												<a class="btn btn-default btn-xs" href="#" data-bind="attr: {href: 'iplex://ukr/doc?code='+hand_zminy.code}">iplex</a>
+												<a target="_blank" class="btn btn-default btn-xs" href="#" data-bind="attr: {href: 'http://zakon2.rada.gov.ua/laws/find/a?textl=1&bool=and&text='+hand_zminy.code}">рада</a>
 											</div>
 										</div>
 										
@@ -290,35 +324,39 @@ if($info){
 													<dt>Статус</dt>
 													<dd><span data-bind="text: document.status"></span></dd>
 													
-													<div data-bind="if: document.regnum">
+													<!-- ko if: document.regnum -->
 														<dt>Реєстр. №</dt>
 														<dd><span data-bind="text: document.regnum"></span></dd>
-													</div>
-													<div data-bind="if: document.regdate">
+													<!-- /ko -->
+													<!-- ko if: document.regdate -->
 														<dt>Реєстр. дата</dt>
 														<dd><span data-bind="text: document.regdate"></span></dd>
-													</div>
+													<!-- /ko -->
 													<dt>Категорія</dt>
 													<dd><span data-bind="text: document.npa"></span></dd>
 													<dt>Гіперкод</dt>
 													<dd><span data-bind="text: document.code"></span></dd>
-													<div data-bind="if: document.codeLG">
+													<!-- ko if: document.codeLG -->
 														<dt>codeLG</dt>
 														<dd><span data-bind="text: document.codeLG"></span></dd>
-													</div>
+													<!-- /ko -->
 													<dt>Uid</dt>
 													<dd><span data-bind="text: document.uid"></span></dd>           
-													<div data-bind="if: document.gosnum">
+													<!-- ko if: document.gosnum -->
 														<dt>Gosnum</dt>
 														<dd><span data-bind="text: document.gosnum"></span></dd>
-													</div>
+													<!-- /ko -->
 													<dt>Modify date</dt>
 													<dd><span data-bind="text: document.modify_date"></span></dd>
+													<!-- ko if: document.public -->
+													<dt>Публікація</dt>
+													<dd><span data-bind="text: document.public"></span></dd>  
+													<!-- /ko -->
 												</dl>
 											</p>
 											<div>
-												<a class="btn btn-info btn-xs" href="#" data-bind="attr: {href: 'iplex://ukr/doc?code='+document.code}">iplex</a>
-												<a target="_blank" class="btn btn-info btn-xs" href="#" data-bind="attr: {href: 'http://zakon2.rada.gov.ua/laws/find/a?textl=1&bool=and&text='+document.code}">рада</a>
+												<a class="btn btn-default btn-xs" href="#" data-bind="attr: {href: 'iplex://ukr/doc?code='+document.code}">iplex</a>
+												<a target="_blank" class="btn btn-default btn-xs" href="#" data-bind="attr: {href: 'http://zakon2.rada.gov.ua/laws/find/a?textl=1&bool=and&text='+document.code}">рада</a>
 											</div>
 										</div>  
 									</div>
@@ -340,7 +378,6 @@ if($info){
 													<table class="table table-hover table-striped">
 														<thead>
 															<tr>
-																<th>Перевірено</th>
 																<th>Змінюючий документ</th>
 																<th>Позначка</th>
 																<th>Додано</th>
@@ -348,9 +385,95 @@ if($info){
 														</thead>
 														<tbody>
 															<tr>
-																<td>
-																	<div data-bind="attr: { id: hand_zminy.code+hand_zminy.zcode.code}">  
+																<td><div data-bind="if: hand_zminy.zcode"><span data-bind="text: hand_zminy.zcode.title"></span></div>
+																	<div data-bind="ifnot: hand_zminy.zcode.code">Документ відсутній в базі: <span data-bind="text: hand_zminy.zcode"></span></div>
+																</td>
+																<td><span data-bind="text: hand_zminy.mark"></span></td>
+																<!--<td><span data-bind="text: checked"></span></td>-->
+																<td><span data-bind="text: hand_zminy.updtdate"></span></td>
+															</tr>
+														</tbody>
+													</table>
+													
+													<div data-bind="if: hand_zminy.zcode.code">
+														<div class="row well" style="margin-right: 0px;">
+															<div class="col-md-6">
+																<dl class="dl-horizontal" style="font-size: small;">
+																	<dt>Видавник</dt>
+																	<dd><span data-bind="text: hand_zminy.zcode.publish"></span></dd>
+																	<dt>Вид</dt>
+																	<dd><span data-bind="text: hand_zminy.zcode.vidy"></span></dd>
+																	<dt>Номер</dt>
+																	<dd><span data-bind="text: hand_zminy.zcode.numbers"></span></dd>
+																	<dt>Дата</dt>
+																	<dd><span data-bind="text: hand_zminy.zcode.doc_date"></span></dd>
+																	<dt>Статус</dt>
+																	<dd><span data-bind="text: hand_zminy.zcode.status"></span></dd>
+																	<!-- ko if: hand_zminy.zcode.regnum -->
+																	<dt>Реєстр. №</dt>
+																	<dd><span data-bind="text: hand_zminy.zcode.regnum"></span></dd>
+																	<!-- /ko -->
+																	<!-- ko if: hand_zminy.zcode.regdate -->
+																	<dt>Реєстр. дата</dt>
+																	<dd><span data-bind="text: hand_zminy.zcode.regdate"></span></dd>
+																	<!-- /ko -->
+																	<!-- ko if: hand_zminy.zcode.npa -->
+																	<dt>Категорія</dt>
+																	<dd><span data-bind="text: hand_zminy.zcode.npa"></span></dd>
+																	<!-- /ko -->																	
+																</dl>
+															</div>
+															<div class="col-md-6">
+																<dl class="dl-horizontal" style="font-size: small;">
+																	<dt>Гіперкод</dt>
+																	<dd><span data-bind="text: hand_zminy.zcode.code"></span></dd>
+																	<!-- ko if: hand_zminy.zcode.codeLG -->
+																	<dt>codeLG</dt>
+																	<dd><span data-bind="text: hand_zminy.zcode.codeLG"></span></dd>
+																	<!-- /ko -->
+																	<dt>Uid</dt>
+																	<dd><span data-bind="text: hand_zminy.zcode.uid"></span></dd>           
+																	<!-- ko if: hand_zminy.zcode.gosnum -->
+																	<dt>Gosnum</dt>
+																	<dd><span data-bind="text: hand_zminy.zcode.gosnum"></span></dd>  
+																	<!-- /ko -->         
+																	<dt>Modify date</dt>
+																	<dd><span data-bind="text: hand_zminy.zcode.modify_date"></span></dd>
+																	<!-- ko if: hand_zminy.zcode.public -->
+																	<dt>Публікація</dt>
+																	<dd><span data-bind="text: hand_zminy.zcode.public"></span></dd>  
+																	<!-- /ko -->
+																</dl>
+															</div>
+														</div>						
+													</div>
+													<div  class="col-md-10 text-left" data-bind="attr: { id: hand_zminy.code+hand_zminy.zcode.code}">
+														<?php if ($register_usr) { ?>
+
+														<!-- ko ifnot: hand_zminy.checked=='+' -->
+															<button class="btn btn-danger" data-bind="click: function(data) { $root.setBtnClick.call(this, 'delete', hand_zminy.code, hand_zminy.zcode.code) }">Видалити</button>
+														<!-- /ko -->
+																			
+														<!-- ko ifnot: hand_zminy.checked=='p' -->
+															<button class="btn btn-warning" data-bind="click: function(data) { $root.setBtnClick.call(this, 'postpone', hand_zminy.code, hand_zminy.zcode) }">Відкласти</button>
+														<!-- /ko -->
+
+														<!-- ko ifnot: hand_zminy.checked=='f' -->
+															<button class="btn btn-primary" data-bind="click: function(data) { $root.setBtnClick.call(this, 'future', hand_zminy.code, hand_zminy.zcode) }">На майбутнє</button>
+														<!-- /ko -->
+
+														<!-- ko ifnot: hand_zminy.checked=='' -->
+															<button class="btn btn-success" data-bind="click: function(data) { $root.setBtnClick.call(this, 'uncheck', hand_zminy.code, hand_zminy.zcode) }">В поточні</button>
+														<!-- /ko -->
+
+														<!-- ko ifnot: hand_zminy.checked=='np' -->
+															<button class="btn btn-info" data-bind="click: function(data) { $root.setBtnClick.call(this, 'nopublik', hand_zminy.code, hand_zminy.zcode) }">В не опубліковані</button>
+														<!-- /ko -->
+
+														<?php } ?>
+
 																		<?php 
+																		/*
 																		if ($register_usr) {
 																			print ('
 																				<div data-bind="if: hand_zminy.zcode.code">
@@ -378,76 +501,17 @@ if($info){
 																				
 																				');
 																		}
+																		*/
 																		?>                                 
-																	</div>
-
-																</td>
-																<td><div data-bind="if: hand_zminy.zcode"><span data-bind="text: hand_zminy.zcode.title"></span></div>
-																	<div data-bind="ifnot: hand_zminy.zcode.code">Документ відсутній в базі: <span data-bind="text: hand_zminy.zcode"></span></div>
-																</td>
-																<td><span data-bind="text: hand_zminy.mark"></span></td>
-																<!--<td><span data-bind="text: checked"></span></td>-->
-																<td><span data-bind="text: hand_zminy.updtdate"></span></td>
-															</tr>
-														</tbody>
-													</table>
-													
-													<div data-bind="if: hand_zminy.zcode.code">
-														<div class="row well" style="margin-right: 0px;">
-															<div class="col-md-6">
-																<dl class="dl-horizontal" style="font-size: small;">
-																	<dt>Видавник</dt>
-																	<dd><span data-bind="text: hand_zminy.zcode.publish"></span></dd>
-																	<dt>Вид</dt>
-																	<dd><span data-bind="text: hand_zminy.zcode.vidy"></span></dd>
-																	<dt>Номер</dt>
-																	<dd><span data-bind="text: hand_zminy.zcode.numbers"></span></dd>
-																	<dt>Дата</dt>
-																	<dd><span data-bind="text: hand_zminy.zcode.doc_date"></span></dd>
-																	<dt>Статус</dt>
-																	<dd><span data-bind="text: hand_zminy.zcode.status"></span></dd>
-																	<div data-bind="if: hand_zminy.zcode.regnum">
-																		<dt>Реєстр. №</dt>
-																		<dd><span data-bind="text: hand_zminy.zcode.regnum"></span></dd>
-																	</div>
-																	<div data-bind="if: hand_zminy.zcode.regdate">
-																		<dt>Реєстр. дата</dt>
-																		<dd><span data-bind="text: hand_zminy.zcode.regdate"></span></dd>
-																	</div>
-																	<div data-bind="if: hand_zminy.zcode.npa">
-																		<dt>Категорія</dt>
-																		<dd><span data-bind="text: hand_zminy.zcode.npa"></span></dd>
-																	</div>
-																</dl>
-															</div>
-															<div class="col-md-6">
-																<dl class="dl-horizontal" style="font-size: small;">
-																	<dt>Гіперкод</dt>
-																	<dd><span data-bind="text: hand_zminy.zcode.code"></span></dd>
-																	<div data-bind="if: hand_zminy.zcode.codeLG">
-																		<dt>codeLG</dt>
-																		<dd><span data-bind="text: hand_zminy.zcode.codeLG"></span></dd>
-																	</div>
-																	<dt>Uid</dt>
-																	<dd><span data-bind="text: hand_zminy.zcode.uid"></span></dd>           
-																	<div data-bind="if: hand_zminy.zcode.gosnum">
-																		<dt>Gosnum</dt>
-																		<dd><span data-bind="text: hand_zminy.zcode.gosnum"></span></dd>  
-																	</div>          
-																	<dt>Modify date</dt>
-																	<dd><span data-bind="text: hand_zminy.zcode.modify_date"></span></dd>
-																</dl>
-															</div>
-														</div>						
 													</div>
-													<div class="col-md-12 text-right">
+													<div class="col-md-2 text-right">
 														<div data-bind="if: hand_zminy.zcode.code">													
-															<a class="btn btn-info btn-xs" href="#" data-bind="attr: {href: 'iplex://ukr/doc?code='+hand_zminy.zcode.code}">iplex</a>
-															<a target="_blank" class="btn btn-info btn-xs" href="#" data-bind="attr: {href: 'http://zakon2.rada.gov.ua/laws/find/a?textl=1&bool=and&text='+hand_zminy.zcode.code}">рада</a>
+															<a class="btn btn-default btn-xs" href="#" data-bind="attr: {href: 'iplex://ukr/doc?code='+hand_zminy.zcode.code}">iplex</a>
+															<a target="_blank" class="btn btn-default btn-xs" href="#" data-bind="attr: {href: 'http://zakon2.rada.gov.ua/laws/find/a?textl=1&bool=and&text='+hand_zminy.zcode.code}">рада</a>
 														</div>
 														<div data-bind="ifnot: hand_zminy.zcode.code">				
-															<a class="btn btn-info btn-xs" href="#" data-bind="attr: {href: 'iplex://ukr/doc?code='+hand_zminy.zcode}">iplex</a>
-															<a target="_blank" class="btn btn-info btn-xs" href="#" data-bind="attr: {href: 'http://zakon2.rada.gov.ua/laws/find/a?textl=1&bool=and&text='+hand_zminy.zcode}">рада</a>
+															<a class="btn btn-default btn-xs" href="#" data-bind="attr: {href: 'iplex://ukr/doc?code='+hand_zminy.zcode}">iplex</a>
+															<a target="_blank" class="btn btn-default btn-xs" href="#" data-bind="attr: {href: 'http://zakon2.rada.gov.ua/laws/find/a?textl=1&bool=and&text='+hand_zminy.zcode}">рада</a>
 														</div>
 													</div>
 
@@ -521,7 +585,7 @@ if($info){
 				</div>
 	<!-- END template for document -->
 			</div>
-		</form>
+
 		<a href="#" id="toTop"  class="btn btn-default btn-lg" role="button"><span class="glyphicon glyphicon-chevron-up"></span></a>
 
 
@@ -574,34 +638,84 @@ if($info){
 			} 
 		};
 
+
+		function Fil(text, value){
+			this.text = text;
+			this.value = value;
+		}
+
+		function zcode(zcode){
+			if ( $.isPlainObject(zcode) )
+				zcode = zcode.code;
+			return zcode;
+		}
+		
+
 		function dataModel() {
 			var self = this;
-			self.docs = ko.observableArray([]);
-			//self.docs = ko.observableArray([]);
+
+			self.params = ko.observableArray([]);
+			self.loading = ko.observable(true);
+			self.docs = ko.observableArray();
 			self.maxvers = ko.observable();
 			self.doctmpcount = ko.observable();
-			self.filters = ko.observableArray(["Всі", "Верховна Рада України", "Кабінет Міністрів", "Президент України", "Зареєстровано в МЮ", "інші", "пусті"]);
 			self.filter = ko.observable('');
+			self.filter2 = ko.observable('');	
+			//self.filters = ko.observableArray(["Всі", "Верховна Рада України", "Кабінет Міністрів", "Президент України", "Зареєстровано в МЮ", "інші", "пусті"]);	
+			self.border_color = ko.observable("#ddd");
+
+			self.completeList = ko.observableArray(["всі", "пусті", "інші", "Зареєстровано в МЮ"]);
+			
+			self.filters = ko.computed(function() {
+				return ko.utils.arrayGetDistinctValues(self.completeList()).sort();
+			});
+			
+			self.availableFil = ko.observableArray([
+				new Fil('Поточні',''),
+				new Fil('Відкладені','p'), 
+				new Fil('Майбутні','f'),
+				new Fil('Не опубліковані','np'),
+				//new Fil('Видалені','d')
+				]);
+			self.selectedFil = ko.observableArray();
+			
+			self.loadDocsBtnClick = function(){
+		      self.GetDocs(self.selectedFil()); 
+		    }
+			
+			self.clickFilter = function(){
+				self.filter("");
+			}
+			
+			self.zcode = function(zcode){
+				if ( $.isPlainObject(zcode) ){
+					zcode = zcode.code;
+				}
+				return zcode;
+			};
+			
+			// Filtered docs
 			self.filteredDocs = ko.computed(function() {
 				var filter = self.filter();
-				if (!filter || filter == "Всі") {
+				var filter2 = self.filter2();
+				var tt;
+				
+				if (!filter || filter == "всі") {
 					self.doctmpcount(self.docs().length);
 					return self.docs();
-
 				} else if (filter == "пусті") {
-					var tt = ko.utils.arrayFilter(self.docs(), function(item) { 
-						return item.document == null;
+					tt = ko.utils.arrayFilter(self.docs(), function(item) { 
+						return ( item.document == null );
 					});
-					self.doctmpcount(tt.length);
-					return tt;
 				} else if (filter == "інші"){
-					var tt = ko.utils.arrayFilter(self.docs(), function(item) {
+					tt = ko.utils.arrayFilter(self.docs(), function(item) {
 						var res = true;
 						if (item.document == null || item.document.regnum != null) {
 							res = false;
 						} else {
 							for (var i = 0, j = self.filters().length; i < j; i++){
-								if (item.hand_zminy.zcode.publish == null || item.hand_zminy.zcode.publish.indexOf(self.filters()[i]) > -1){
+								if  (item.hand_zminy.zcode.publish == null || item.hand_zminy.zcode.publish.indexOf(self.filters()[i]) > -1)
+									 {									
 									res = false;
 									break;
 								}
@@ -609,54 +723,89 @@ if($info){
 						}						
 						return res;
 					});
-					self.doctmpcount(tt.length);
-					return tt;
 				} else if (filter == "Зареєстровано в МЮ") {
-					var tt = ko.utils.arrayFilter(self.docs(), function(item) { 
+					tt = ko.utils.arrayFilter(self.docs(), function(item) { 
 						if (item.hand_zminy != null && item.hand_zminy.zcode.regnum != null) {
 							return true;
 						}
 						return false;
 					});
-					self.doctmpcount(tt.length);
-					return tt;
 				} else {
 					var tt = ko.utils.arrayFilter(self.docs(), function(item) { 
 						if (item.hand_zminy != null && item.hand_zminy.zcode.publish != null) {
-							return (item.hand_zminy.zcode.publish.indexOf(filter) > -1);
+							return (item.hand_zminy.zcode.publish.toLowerCase().indexOf(filter.toLowerCase()) > -1);
 						}
 					});
-					self.doctmpcount(tt.length);
-					return tt;
+					
 				}
+				self.doctmpcount(tt.length);
+				return tt;
 			});
 			
-			$.ajax({
-				beforeSend:function(){
-					$('#nodocs').hide();
-					$('#myPleaseWait').modal('show');
-				},
-				complete:function(){
-					$('#myPleaseWait').modal('hide');
-				},
-				dataType: "json",
-				url: "checkzminy.php",
-				type: "GET",
+			// Load docs from server
+			self.GetDocs = function(fil) {
+				switch(fil){
+					case '+':
+						border = "#d43f3a";
+						break;
+					case 'p':
+						border = "#eea236";
+						break;
+					case 'f':
+						border = "#2e6da4";
+						break;
+					case '':
+						border = "#4cae4c";
+						break;
+					case 'np':
+						border = "#46b8da";
+						break;
 
-				success: function (data) {
-					self.docs(data.docs);
-					self.maxvers = data.maxvers;
-					var n = data.docs.length; 
-					$('#count_docs').text(n);                    
-				},
-				error: function () {
-					$('#myPleaseWait').modal('hide');
-					$('#nodocs').show();
-					//console.log('An error occurred');
+					default:
+					border = "#ddd";
 				}
-			});
-			self.params = ko.observableArray([]);
-			
+				self.border_color(border);
+
+				$.ajax({
+					beforeSend:function(){
+
+						$('#nodocs').hide();
+						$('#myPleaseWait').modal('show');
+						
+						self.docs.removeAll();
+						//alert( filters_default );
+						//self.completeList.removeAll();
+						self.completeList(["всі", "пусті", "інші", "Зареєстровано в МЮ"]);
+
+					},
+					complete:function(){
+						$('#myPleaseWait').modal('hide');
+						
+					},
+					data: 'fil='+fil,
+					dataType: "json",
+					url: "checkzminy.php",
+					type: "GET",
+					success: function (data) {					
+						self.docs(data.docs);
+						self.maxvers(data.maxvers);
+						var n = data.docs.length; 
+						//$('#count_docs').text(n);
+						for (var j = 0; j < n+0; j++) {
+							if (data.docs[j].hand_zminy != null && data.docs[j].hand_zminy.zcode.publish != null){
+								self.completeList.push(data.docs[j].hand_zminy.zcode.publish.toLowerCase());
+							}
+						}
+					},
+					error: function () {
+						$('#myPleaseWait').modal('hide');
+						$('#nodocs').show();
+					}
+				});
+			}
+			self.GetDocs('');
+						
+			// Get parameters from server
 			self.GetParams = function() {
 				$.ajax({            
 					beforeSend:function(){
@@ -673,9 +822,9 @@ if($info){
 						self.params(par.params);                  
 					}
 				});
-
 			}
 
+			// Save parameters to server
 			self.SaveParams = function() {
 				$.ajax({            
 					url: "paramsset.php",
@@ -691,6 +840,7 @@ if($info){
 				});            
 			}
 
+			// Login user 
 			self.Login = function() {
 				$.ajax({
 					url: "login.php",
@@ -708,35 +858,53 @@ if($info){
 				});
 			}
 
-			self.toggleChecked = function(code, zcode) {
-				var txt;
-				var r = confirm("Видалити зі списку та помітити зробленим?");
-				if (r == true) {
+			// Buttons actions
+			self.setBtnClick = function(mode, code, zcode) {
+				zcode = self.zcode(zcode);
+				switch(mode){
+					case 'delete':
+						msg = "Видалити зі списку та помітити зробленим?";
+						break;
+					case 'postpone':
+						msg = "Відкласти?";
+						break;
+					case 'future':
+						msg = "На майбутнє?";
+						break;
+					case 'uncheck':
+						msg = "Повернути в поточні?";
+						break;
+					case 'nopublik':
+						msg = "Додати в не опубліковані?";
+						break;
 
-				    $.ajax({
-						type: "POST",
-						url: "dochecked.php",
-						//data: JSON.stringify(data),
-						data: 'code='+code+'&zcode='+zcode,
-						success : function(text){
-							//alert(text);
-							var idteg = "#"+code+zcode;
-							$( idteg+" > div > span").text( text );
-							$( idteg+" > div > button,"+idteg+" > div > span").toggleClass( "hidden" );
-						}
-					});
-				} else {
+					default:
+					msg = "?";
+				}
+				var r = confirm(msg);
+				if (r == true) {
+					//alert(mode);
 					//alert(code);
 					//alert(zcode);
-				}
+					$.ajax({
+						type: "POST",
+						url: "dochecked.php",
+						data: 'mode='+mode+'&code='+code+'&zcode='+zcode,
+						success : function(text){
+							//var idteg = "#"+code+zcode;
+							//$( idteg+" > div > span").text( text );
+							//$( idteg+" > div > button,"+idteg+" > div > span").toggleClass( "hidden" );
+							self.docs.remove( function (item) { return (item.hand_zminy.code===code && self.zcode(item.hand_zminy.zcode)===zcode); } );
+						}
+					});
+				} 
 			}
-
-			
-
 		}
 
 		ko.applyBindings(new dataModel()); 
 
+		
+		// scroll to top
 		$(function(){
 			$.fn.scrollToTop=function(){
 				$(this).hide().removeAttr("href");
@@ -760,20 +928,7 @@ if($info){
 			$("#toTop").scrollToTop();
 		});
 
-		//$('#contacts').click(function(e) {
-		//	alert(e);
-		    //var $this = $(this),
-		    //    loadurl = $this.attr('href'),
-		    //    targ = $this.attr('data-target');
-
-		    //$.get(loadurl, function(data) {
-		    //    $("#contacts").html('gfadjdkjladshkjasdkj');
-		    //});
-
-		    //$this.tab('show');
-		    //return false;
-		//});
-		
+	
 	// });
 </script>
 

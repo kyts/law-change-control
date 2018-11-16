@@ -1,0 +1,30 @@
+
+#toTop {
+ position:fixed;
+ z-index:9999;
+ bottom:20px;
+ right:20px;
+ opacity: 0.6;
+ /*background: #F4FFBF;
+ border: 0px solid #ccc;
+ padding: 20px;
+ cursor: pointer;
+ color: #666;
+ text-decoration: none;*/
+ /*width:80px;*/
+}
+
+#toTopImg {
+ position:fixed;
+ z-index:9999;
+ bottom:10px;
+ right:10px;
+ background: url('img/image_64x64.png') no-repeat;
+ width: 64px;
+ height: 64px;
+ border: none;
+ padding: 5px;
+ cursor: pointer;
+ color: transparent;
+ text-decoration: none;
+}
